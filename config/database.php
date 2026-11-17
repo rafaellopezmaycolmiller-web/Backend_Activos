@@ -86,7 +86,9 @@ return [
 
         'pgsql' => [
             'driver' => 'pgsql',
-            'url' => env('DB_URL'),
+            // Railway exposes the connection as DATABASE_URL. Keep DB_URL as
+            // the primary Laravel convention, with Railway names as fallback.
+            'url' => env('DB_URL', env('DATABASE_URL', env('DATABASE_PRIVATE_URL'))),
             'host' => env('DB_HOST', '127.0.0.1'),
             'port' => env('DB_PORT', '5432'),
             'database' => env('DB_DATABASE', 'laravel'),
