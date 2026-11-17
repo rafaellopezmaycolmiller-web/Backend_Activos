@@ -22,6 +22,13 @@ use App\Http\Controllers\Api\V1\UserController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->name('api.v1.')->group(function (): void {
+    // The frontend is hosted on a separate Railway subdomain, so it cannot
+    // read the backend's XSRF cookie. Return the session token explicitly;
+    // the session cookie is still sent by the credentialed request.
+    Route::get('/auth/csrf-token', static fn () => response()->json([
+        'token' => csrf_token(),
+    ]))->name('auth.csrf-token');
+
     Route::post('/auth/login', [SessionController::class, 'store'])
         ->middleware('throttle:login')
         ->name('auth.login');
