@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Api\V1;
 
+use App\Models\Role;
 use App\Models\User;
 use App\RoleScope;
 use Illuminate\Foundation\Http\FormRequest;
@@ -31,7 +32,12 @@ class StoreUserRequest extends FormRequest
             'name' => ['required', 'string', 'max:160'],
             'document_number' => ['required', 'string', 'max:20', Rule::unique('users')],
             'job_title' => ['required', 'string', 'max:120'],
-            'phone' => ['nullable', 'string', 'max:30'],
+            'phone' => [
+                Rule::requiredIf(fn (): bool => $this->assignsTechnicalAdministratorRole()),
+                'nullable',
+                'string',
+                'regex:/^\+519\d{8}$/',
+            ],
             'email' => ['required', 'string', 'email:rfc', 'max:255', Rule::unique('users')],
             'password' => [
                 'required',
@@ -39,7 +45,6 @@ class StoreUserRequest extends FormRequest
                 Password::min(12)->mixedCase()->numbers()->symbols(),
             ],
             'is_active' => ['required', 'boolean'],
-            'mfa_required' => ['required', 'boolean'],
             'role_assignments' => ['required', 'array', 'min:1'],
             'role_assignments.*.role_id' => ['required', 'integer', 'distinct', Rule::exists('roles', 'id')],
             'role_assignments.*.scope' => ['required', new Enum(RoleScope::class)],
@@ -50,6 +55,43 @@ class StoreUserRequest extends FormRequest
     {
         $this->merge([
             'email' => Str::lower($this->string('email')->trim()->toString()),
+            'phone' => $this->normalizedPhone(),
         ]);
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public function messages(): array
+    {
+        return [
+            'phone.required' => 'El teléfono celular es obligatorio para el Administrador de TI.',
+            'phone.regex' => 'Ingrese un celular peruano válido, por ejemplo +51906239450.',
+        ];
+    }
+
+    private function assignsTechnicalAdministratorRole(): bool
+    {
+        $roleIds = collect($this->input('role_assignments', []))->pluck('role_id')->filter();
+
+        return Role::query()
+            ->whereKey($roleIds)
+            ->where('code', 'administrador_tecnico')
+            ->exists();
+    }
+
+    private function normalizedPhone(): ?string
+    {
+        $phone = preg_replace('/[\s()\-]+/', '', $this->string('phone')->trim()->toString()) ?? '';
+
+        if (preg_match('/^9\d{8}$/', $phone) === 1) {
+            return '+51'.$phone;
+        }
+
+        if (preg_match('/^519\d{8}$/', $phone) === 1) {
+            return '+'.$phone;
+        }
+
+        return $phone === '' ? null : $phone;
     }
 }

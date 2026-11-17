@@ -37,7 +37,7 @@ class UserControllerTest extends TestCase
                 'password' => 'PasswordSegura123!',
                 'password_confirmation' => 'PasswordSegura123!',
                 'is_active' => true,
-                'mfa_required' => false,
+                'mfa_required' => true,
                 'failed_login_attempts' => 99,
                 'role_assignments' => [
                     ['role_id' => $role->getKey(), 'scope' => RoleScope::OwnArea->value],
@@ -51,6 +51,8 @@ class UserControllerTest extends TestCase
         $createdUser = User::query()->where('email', 'asistente@morales.gob.pe')->firstOrFail();
 
         $this->assertSame(0, $createdUser->failed_login_attempts);
+        $this->assertFalse($createdUser->mfa_required);
+        $this->assertSame('+51987654321', $createdUser->phone);
         $this->assertDatabaseHas('role_user', [
             'user_id' => $createdUser->getKey(),
             'role_id' => $role->getKey(),
@@ -61,6 +63,70 @@ class UserControllerTest extends TestCase
             'actor_id' => $administrator->getKey(),
             'subject_id' => (string) $createdUser->getKey(),
         ]);
+    }
+
+    public function test_technical_administrator_gets_sms_verification_and_requires_phone(): void
+    {
+        $administrator = $this->createAuthorizedUser(
+            ['users.create', 'roles.assign'],
+            RoleScope::Global,
+        );
+        $area = Area::factory()->create();
+        $role = Role::factory()->create(['code' => 'administrador_tecnico']);
+
+        $this
+            ->actingAs($administrator)
+            ->postJson('/api/v1/users', [
+                'area_id' => $area->getKey(),
+                'name' => 'Administrador TI',
+                'document_number' => '70605040',
+                'job_title' => 'Administrador técnico',
+                'phone' => '906239450',
+                'email' => 'administrador.ti@morales.gob.pe',
+                'password' => 'PasswordSegura123!',
+                'password_confirmation' => 'PasswordSegura123!',
+                'is_active' => true,
+                'role_assignments' => [
+                    ['role_id' => $role->getKey(), 'scope' => RoleScope::Global->value],
+                ],
+            ])
+            ->assertCreated();
+
+        $createdUser = User::query()->where('email', 'administrador.ti@morales.gob.pe')->firstOrFail();
+
+        $this->assertTrue($createdUser->mfa_required);
+        $this->assertSame('+51906239450', $createdUser->phone);
+    }
+
+    public function test_technical_administrator_without_phone_receives_422(): void
+    {
+        $administrator = $this->createAuthorizedUser(
+            ['users.create', 'roles.assign'],
+            RoleScope::Global,
+        );
+        $area = Area::factory()->create();
+        $role = Role::factory()->create(['code' => 'administrador_tecnico']);
+
+        $this
+            ->actingAs($administrator)
+            ->postJson('/api/v1/users', [
+                'area_id' => $area->getKey(),
+                'name' => 'Administrador TI',
+                'document_number' => '70605041',
+                'job_title' => 'Administrador técnico',
+                'phone' => null,
+                'email' => 'administrador.sin.telefono@morales.gob.pe',
+                'password' => 'PasswordSegura123!',
+                'password_confirmation' => 'PasswordSegura123!',
+                'is_active' => true,
+                'role_assignments' => [
+                    ['role_id' => $role->getKey(), 'scope' => RoleScope::Global->value],
+                ],
+            ])
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors(['phone']);
+
+        $this->assertDatabaseMissing('users', ['email' => 'administrador.sin.telefono@morales.gob.pe']);
     }
 
     public function test_user_without_management_permission_receives_403(): void

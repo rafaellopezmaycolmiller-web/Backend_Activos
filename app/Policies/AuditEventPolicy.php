@@ -17,4 +17,9 @@ class AuditEventPolicy
         return $user->hasGlobalPermission('audit.view')
             || ($user->hasPermission('audit.view') && $user->area_id === $auditEvent->area_id);
     }
+
+    public function archive(User $user, AuditEvent $auditEvent): bool
+    {
+        return $user->hasGlobalPermission('audit.manage');
+    }
 }

@@ -9,6 +9,7 @@ use App\Notifications\LoginVerificationCode;
 use App\Services\AuditLogger;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Throwable;
 
 class IssueLoginChallenge
 {
@@ -36,10 +37,16 @@ class IssueLoginChallenge
             'user_agent' => $this->request->userAgent(),
         ]);
 
-        $user->notify(new LoginVerificationCode(
-            code: $code,
-            expiresMinutes: config('security.mfa.expires_minutes'),
-        ));
+        try {
+            $user->notify(new LoginVerificationCode(
+                code: $code,
+                expiresMinutes: config('security.mfa.expires_minutes'),
+            ));
+        } catch (Throwable $exception) {
+            $challenge->delete();
+
+            throw $exception;
+        }
 
         $this->auditLogger->record(
             AuditEventType::MfaChallengeIssued,

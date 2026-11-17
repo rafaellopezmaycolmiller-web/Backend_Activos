@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 use LogicException;
 
 #[Fillable([
@@ -20,6 +21,9 @@ use LogicException;
     'user_agent',
     'metadata',
     'occurred_at',
+    'archived_at',
+    'archived_by',
+    'archive_reason',
 ])]
 class AuditEvent extends Model
 {
@@ -38,6 +42,11 @@ class AuditEvent extends Model
         return $this->belongsTo(Area::class);
     }
 
+    public function subject(): MorphTo
+    {
+        return $this->morphTo();
+    }
+
     protected static function booted(): void
     {
         static::updating(function (): never {
@@ -54,6 +63,7 @@ class AuditEvent extends Model
         return [
             'metadata' => 'array',
             'occurred_at' => 'datetime',
+            'archived_at' => 'datetime',
         ];
     }
 }

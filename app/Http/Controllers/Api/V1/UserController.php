@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\V1\StoreUserRequest;
 use App\Http\Requests\Api\V1\UpdateUserRequest;
 use App\Http\Resources\Api\V1\UserResource;
+use App\Models\Role;
 use App\Models\User;
 use App\Services\AuditLogger;
 use Illuminate\Http\JsonResponse;
@@ -63,6 +64,7 @@ class UserController extends Controller
         $assignments = $validated['role_assignments'];
         $attributes = Arr::except($validated, ['role_assignments', 'password_confirmation']);
         $attributes['email'] = Str::lower($attributes['email']);
+        $attributes['mfa_required'] = $this->assignmentsRequireMfa($assignments);
 
         $user = DB::transaction(function () use ($attributes, $assignments, $actor, $auditLogger): User {
             $user = User::create($attributes);
@@ -108,6 +110,7 @@ class UserController extends Controller
         $assignments = $validated['role_assignments'];
         $attributes = Arr::except($validated, ['role_assignments']);
         $attributes['email'] = Str::lower($attributes['email']);
+        $attributes['mfa_required'] = $this->assignmentsRequireMfa($assignments);
 
         DB::transaction(function () use ($user, $attributes, $assignments, $actor, $auditLogger): void {
             $before = $user->only([
@@ -157,5 +160,16 @@ class UserController extends Controller
                 $assignment['role_id'] => ['scope' => $assignment['scope']],
             ])
             ->all();
+    }
+
+    /**
+     * @param  array<int, array{role_id: int, scope: string}>  $assignments
+     */
+    private function assignmentsRequireMfa(array $assignments): bool
+    {
+        return Role::query()
+            ->whereKey(collect($assignments)->pluck('role_id'))
+            ->where('code', 'administrador_tecnico')
+            ->exists();
     }
 }

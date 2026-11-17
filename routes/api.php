@@ -43,15 +43,18 @@ Route::prefix('v1')->name('api.v1.')->group(function (): void {
         Route::apiResource('users', UserController::class)->only(['index', 'store', 'show', 'update']);
         Route::apiResource('areas', AreaController::class)->only(['index', 'store', 'show', 'update']);
         Route::apiResource('assets', AssetController::class)->only(['index', 'store', 'show', 'update']);
+        Route::get('/assets/code/{assetCode}', [AssetController::class, 'byCode'])->name('assets.by-code');
         Route::get('/assets/{asset}/custodianships', [CustodianshipController::class, 'index'])->name('assets.custodianships.index');
         Route::post('/assets/{asset}/custodianships', [CustodianshipController::class, 'store'])->name('assets.custodianships.store');
         Route::get('/assets/{asset}/documents', [AssetController::class, 'documents'])->name('assets.documents.index');
         Route::post('/assets/{asset}/documents', [AssetController::class, 'uploadDocument'])->name('assets.documents.store');
+        Route::get('/assets/{asset}/documents/{document}', [AssetController::class, 'showDocument'])->name('assets.documents.show');
         Route::apiResource('asset-categories', AssetCategoryController::class)->only(['index', 'store', 'show', 'update']);
         Route::get('/asset-statuses', [AssetStatusController::class, 'index'])->name('asset-statuses.index');
         Route::apiResource('asset-locations', AssetLocationController::class)->only(['index', 'store', 'show', 'update']);
         Route::apiResource('roles', RoleController::class)->only(['index', 'show']);
         Route::apiResource('audit-events', AuditEventController::class)->only(['index', 'show']);
+        Route::post('/audit-events/{audit_event}/archive', [AuditEventController::class, 'archive'])->name('audit-events.archive');
         Route::apiResource('movement-requests', MovementRequestController::class)->only(['index', 'store', 'show']);
         Route::post('/movement-requests/{movement_request}/decide', [MovementRequestController::class, 'decide'])->name('movement-requests.decide');
         Route::post('/movement-requests/{movement_request}/receive', [MovementRequestController::class, 'receive'])->name('movement-requests.receive');

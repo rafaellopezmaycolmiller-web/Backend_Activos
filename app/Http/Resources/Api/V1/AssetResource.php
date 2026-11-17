@@ -18,6 +18,11 @@ class AssetResource extends JsonResource
             'category' => new AssetCategoryResource($this->whenLoaded('category')),
             'status' => new AssetStatusResource($this->whenLoaded('status')),
             'area' => new AreaResource($this->whenLoaded('area')),
+            'registered_area' => $this->whenLoaded('creator', function (): ?array {
+                $area = $this->creator?->area;
+
+                return $area === null ? null : ['id' => $area->id, 'code' => $area->code, 'name' => $area->name];
+            }),
             'location' => new AssetLocationResource($this->whenLoaded('location')),
             'documents' => AssetDocumentResource::collection($this->whenLoaded('documents')),
             'versions' => AssetVersionResource::collection($this->whenLoaded('versions')),

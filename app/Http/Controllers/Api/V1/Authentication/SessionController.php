@@ -14,7 +14,9 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
+use Throwable;
 
 class SessionController extends Controller
 {
@@ -69,13 +71,23 @@ class SessionController extends Controller
         $remember = $request->boolean('remember');
 
         if ($user->mfa_required) {
-            $challenge = $issueLoginChallenge->handle($user, $remember);
+            try {
+                $challenge = $issueLoginChallenge->handle($user, $remember);
+            } catch (Throwable $exception) {
+                report($exception);
+
+                throw ValidationException::withMessages([
+                    'email' => 'No se pudo enviar el código SMS. Revise la configuración de mensajería.',
+                ]);
+            }
 
             return response()->json([
-                'message' => 'Se envió un código de verificación de un solo uso.',
+                'message' => 'Se envió un código de verificación.',
                 'requires_mfa' => true,
                 'challenge_id' => $challenge->getKey(),
                 'expires_at' => $challenge->expires_at->toIso8601String(),
+                'delivery_channel' => config('services.twilio.channel', 'sms'),
+                'destination_hint' => 'celular terminado en '.Str::take((string) $user->phone, -4),
             ], 202);
         }
 

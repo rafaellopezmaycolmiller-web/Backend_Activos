@@ -7,6 +7,7 @@ use App\Models\LoginChallenge;
 use App\Models\User;
 use App\Notifications\LoginVerificationCode;
 use Illuminate\Foundation\Testing\LazilyRefreshDatabase;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Notification;
 use Tests\Concerns\CreatesAuthorizedUsers;
 use Tests\TestCase;
@@ -106,10 +107,42 @@ class SessionControllerTest extends TestCase
         $response
             ->assertAccepted()
             ->assertJsonPath('requires_mfa', true)
+            ->assertJsonPath('delivery_channel', 'sms')
+            ->assertJsonPath('destination_hint', 'celular terminado en '.substr((string) $user->phone, -4))
             ->assertJsonStructure(['challenge_id', 'expires_at']);
         $this->assertGuest();
         $this->assertSame(1, LoginChallenge::query()->whereBelongsTo($user)->count());
         Notification::assertSentTo($user, LoginVerificationCode::class);
+    }
+
+    public function test_sms_delivery_failure_returns_422_and_removes_challenge(): void
+    {
+        config()->set([
+            'services.twilio.account_sid' => 'AC123456789',
+            'services.twilio.auth_token' => 'secret-token',
+            'services.twilio.messaging_service_sid' => 'MG123456789',
+        ]);
+        Http::preventStrayRequests();
+        Http::fake([
+            'api.twilio.com/*' => Http::response(['message' => 'delivery failed'], 500),
+        ]);
+        $user = User::factory()->mfaRequired()->create([
+            'email' => 'jefatura@morales.gob.pe',
+            'password' => 'Password123!',
+            'phone' => '+51906239450',
+        ]);
+
+        $this
+            ->withHeaders($this->statefulHeaders())
+            ->postJson('/api/v1/auth/login', [
+                'email' => $user->email,
+                'password' => 'Password123!',
+            ])
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors(['email']);
+
+        $this->assertGuest();
+        $this->assertSame(0, LoginChallenge::query()->whereBelongsTo($user)->count());
     }
 
     public function test_authenticated_user_can_logout_and_event_is_audited(): void

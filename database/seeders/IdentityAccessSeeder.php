@@ -22,6 +22,7 @@ class IdentityAccessSeeder extends Seeder
             ['code' => 'areas.manage', 'name' => 'Administrar áreas', 'module' => 'organization'],
             ['code' => 'audit.view', 'name' => 'Consultar auditoría', 'module' => 'audit'],
             ['code' => 'audit.export', 'name' => 'Exportar auditoría', 'module' => 'audit'],
+            ['code' => 'audit.manage', 'name' => 'Corregir eventos de auditoría', 'module' => 'audit'],
             ['code' => 'assets.view', 'name' => 'Consultar activos', 'module' => 'assets'],
             ['code' => 'assets.create', 'name' => 'Registrar activos', 'module' => 'assets'],
             ['code' => 'assets.update', 'name' => 'Actualizar activos', 'module' => 'assets'],
@@ -55,11 +56,15 @@ class IdentityAccessSeeder extends Seeder
         });
 
         $rolePermissions = [
-            'administrador_tecnico' => $permissions->keys()->all(),
+            'administrador_tecnico' => [
+                'dashboard.view',
+                'users.view', 'users.create', 'users.update', 'roles.view', 'roles.assign',
+                'areas.view', 'areas.manage', 'audit.view', 'audit.export', 'audit.manage',
+                'assets.view', 'assets.create', 'assets.update', 'asset_categories.view', 'asset_categories.manage', 'asset_statuses.view', 'locations.view', 'locations.manage', 'asset_documents.view', 'asset_documents.upload',
+                'movements.view', 'custody.view', 'inventory.view', 'disposals.view',
+            ],
             'jefe_patrimonio' => [
                 'dashboard.view',
-                'users.view',
-                'roles.view',
                 'areas.view',
                 'audit.view',
                 'assets.view', 'assets.create', 'assets.update', 'asset_categories.view', 'asset_categories.manage', 'asset_statuses.view', 'locations.view', 'locations.manage', 'asset_documents.view', 'asset_documents.upload',
@@ -67,24 +72,31 @@ class IdentityAccessSeeder extends Seeder
                 'inventory.view', 'inventory.create', 'inventory.check', 'inventory.manage', 'disposals.view', 'disposals.request', 'disposals.approve',
             ],
             'asistente_patrimonio' => ['dashboard.view', 'areas.view', 'assets.view', 'assets.create', 'assets.update', 'asset_categories.view', 'asset_statuses.view', 'locations.view', 'asset_documents.view', 'asset_documents.upload', 'movements.view', 'movements.request', 'custody.view', 'inventory.view', 'inventory.create', 'inventory.check'],
-            'logistica_almacen' => ['dashboard.view', 'areas.view', 'assets.view', 'assets.create', 'asset_categories.view', 'asset_statuses.view', 'locations.view', 'asset_documents.view', 'asset_documents.upload'],
-            'informatica_mantenimiento' => ['dashboard.view', 'areas.view', 'assets.view', 'assets.update', 'asset_categories.view', 'asset_statuses.view', 'locations.view', 'asset_documents.view', 'asset_documents.upload'],
-            'comision_inventario' => ['dashboard.view', 'areas.view', 'assets.view', 'asset_categories.view', 'asset_statuses.view', 'locations.view', 'asset_documents.view', 'inventory.view', 'inventory.create', 'inventory.check'],
-            'responsable_area' => ['dashboard.view', 'areas.view', 'assets.view', 'asset_statuses.view', 'locations.view', 'asset_documents.view', 'movements.view', 'movements.request', 'movements.receive', 'custody.view', 'inventory.view', 'inventory.check'],
-            'gerencia_oga' => ['dashboard.view', 'areas.view', 'audit.view', 'assets.view', 'asset_categories.view', 'asset_statuses.view', 'locations.view', 'asset_documents.view'],
-            'oci_auditor' => ['dashboard.view', 'users.view', 'areas.view', 'roles.view', 'audit.view', 'audit.export', 'assets.view', 'asset_categories.view', 'asset_statuses.view', 'locations.view', 'asset_documents.view'],
+            'asistente_ti' => ['dashboard.view', 'areas.view', 'users.view', 'assets.view', 'assets.create', 'assets.update', 'asset_categories.view', 'asset_statuses.view', 'locations.view', 'asset_documents.view', 'asset_documents.upload', 'audit.view'],
+            'asistente_oci' => ['dashboard.view', 'areas.view', 'audit.view', 'audit.export', 'assets.view', 'asset_categories.view', 'asset_statuses.view', 'locations.view', 'asset_documents.view', 'movements.view', 'custody.view', 'inventory.view', 'disposals.view'],
+            'oci_auditor' => [
+                'dashboard.view', 'users.view', 'areas.view', 'roles.view', 'audit.view', 'audit.export',
+                'assets.view', 'asset_categories.view', 'asset_statuses.view', 'locations.view', 'asset_documents.view',
+                'movements.view', 'custody.view', 'inventory.view', 'disposals.view',
+            ],
         ];
 
         $roleNames = [
-            'administrador_tecnico' => 'Administrador técnico',
+            'administrador_tecnico' => 'Administrador de TI',
             'jefe_patrimonio' => 'Jefe de Patrimonio',
             'asistente_patrimonio' => 'Asistente de Patrimonio',
-            'logistica_almacen' => 'Logística / Almacén',
-            'informatica_mantenimiento' => 'Informática / Mantenimiento',
-            'comision_inventario' => 'Comisión de Inventario',
-            'responsable_area' => 'Responsable de área',
-            'gerencia_oga' => 'Gerencia / OGA',
+            'asistente_ti' => 'Asistente de TI',
+            'asistente_oci' => 'Asistente de OCI',
             'oci_auditor' => 'OCI / Auditor',
+        ];
+
+        $roleDescriptions = [
+            'administrador_tecnico' => 'Administra cuentas, accesos y configuración; puede apoyar el registro de activos sin aprobar procesos patrimoniales.',
+            'jefe_patrimonio' => 'Gestiona el ciclo patrimonial y autoriza movimientos, inventarios y bajas.',
+            'asistente_patrimonio' => 'Registra y actualiza activos, documentos, movimientos e inventarios bajo supervisión.',
+            'asistente_ti' => 'Apoya la operación técnica y el registro de activos desde TI, sin administrar cuentas.',
+            'asistente_oci' => 'Consulta información y trazabilidad institucional desde OCI, sin modificar registros.',
+            'oci_auditor' => 'Consulta información y trazabilidad institucional sin modificar registros.',
         ];
 
         foreach ($rolePermissions as $code => $permissionCodes) {
@@ -92,7 +104,7 @@ class IdentityAccessSeeder extends Seeder
                 ['code' => $code],
                 [
                     'name' => $roleNames[$code],
-                    'description' => 'Rol institucional administrado por el sistema.',
+                    'description' => $roleDescriptions[$code],
                     'is_system' => true,
                 ],
             );
@@ -101,6 +113,12 @@ class IdentityAccessSeeder extends Seeder
                 $permissions->only($permissionCodes)->pluck('id')->all(),
             );
         }
+
+        Role::query()
+            ->where('is_system', true)
+            ->whereNotIn('code', array_keys($rolePermissions))
+            ->whereDoesntHave('users')
+            ->each(fn (Role $role) => $role->delete());
 
         $municipality = Area::query()->updateOrCreate(
             ['code' => 'MDM'],
@@ -113,18 +131,18 @@ class IdentityAccessSeeder extends Seeder
         );
 
         foreach ([
-            ['code' => 'PAT', 'name' => 'Patrimonio'],
-            ['code' => 'LOG', 'name' => 'Logística y Almacén'],
-            ['code' => 'TI', 'name' => 'Tecnologías de la Información'],
-            ['code' => 'OGA', 'name' => 'Oficina General de Administración'],
-            ['code' => 'OCI', 'name' => 'Órgano de Control Institucional'],
+            ['code' => 'PAT', 'name' => 'Patrimonio', 'description' => 'Registra, actualiza y controla los bienes patrimoniales de la municipalidad.'],
+            ['code' => 'LOG', 'name' => 'Logística y Almacén', 'description' => 'Coordina la recepción, almacenamiento y entrega de equipos y mobiliario.'],
+            ['code' => 'TI', 'name' => 'Tecnologías de la Información', 'description' => 'Administra los accesos al sistema y brinda soporte a las áreas usuarias.'],
+            ['code' => 'OGA', 'name' => 'Oficina General de Administración', 'description' => 'Supervisa la gestión administrativa relacionada con los bienes municipales.'],
+            ['code' => 'OCI', 'name' => 'Órgano de Control Institucional', 'description' => 'Consulta la trazabilidad y verifica el cumplimiento de los procesos internos.'],
         ] as $area) {
             Area::query()->updateOrCreate(
                 ['code' => $area['code']],
                 [
                     'parent_id' => $municipality->getKey(),
                     'name' => $area['name'],
-                    'description' => 'Área inicial pendiente de validación con el organigrama vigente.',
+                    'description' => $area['description'],
                     'is_active' => true,
                 ],
             );

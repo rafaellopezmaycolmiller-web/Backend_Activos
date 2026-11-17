@@ -14,7 +14,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             IdentityAccessSeeder::class,
             AssetCatalogSeeder::class,
-            DemoUserSeeder::class,
+            InitialAccessSeeder::class,
         ]);
     }
 }

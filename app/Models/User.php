@@ -48,6 +48,11 @@ class User extends Authenticatable
         return $this->hasMany(LoginChallenge::class);
     }
 
+    public function routeNotificationForTwilioSms(): ?string
+    {
+        return $this->phone;
+    }
+
     public function hasPermission(string $permission): bool
     {
         return $this->roles()
