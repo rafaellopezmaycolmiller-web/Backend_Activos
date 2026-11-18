@@ -27,7 +27,7 @@ class InitialAccessSeeder extends Seeder
                 'area' => 'TI',
                 'role' => 'administrador_tecnico',
                 'phone' => '+51906239450',
-                'mfa_required' => true,
+                'mfa_required' => false,
             ],
             [
                 'name' => 'Responsable de Patrimonio',
