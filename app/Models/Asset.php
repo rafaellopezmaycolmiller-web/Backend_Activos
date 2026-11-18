@@ -56,6 +56,16 @@ class Asset extends Model
         return $this->hasMany(Custodianship::class);
     }
 
+    public function technicalEvaluations(): HasMany
+    {
+        return $this->hasMany(TechnicalEvaluation::class);
+    }
+
+    public function disposalRequests(): HasMany
+    {
+        return $this->hasMany(DisposalRequest::class);
+    }
+
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');

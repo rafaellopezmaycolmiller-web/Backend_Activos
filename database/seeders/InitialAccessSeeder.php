@@ -27,7 +27,7 @@ class InitialAccessSeeder extends Seeder
                 'area' => 'TI',
                 'role' => 'administrador_tecnico',
                 'phone' => '+51906239450',
-                'mfa_required' => false,
+                'mfa_required' => true,
             ],
             [
                 'name' => 'Responsable de Patrimonio',
@@ -36,7 +36,7 @@ class InitialAccessSeeder extends Seeder
                 'area' => 'PAT',
                 'role' => 'jefe_patrimonio',
                 'phone' => null,
-                'mfa_required' => false,
+                'mfa_required' => true,
             ],
             [
                 'name' => 'Auditoría OCI',

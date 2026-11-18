@@ -16,6 +16,7 @@ use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -128,8 +129,16 @@ class UserController extends Controller
             $user->roles()->sync($this->roleSyncPayload($assignments));
 
             if (! $user->is_active) {
-                DB::table('sessions')->where('user_id', $user->getKey())->delete();
-                $user->tokens()->delete();
+                if (config('session.driver') === 'database' && Schema::hasTable('sessions')) {
+                    DB::table('sessions')->where('user_id', $user->getKey())->delete();
+                }
+
+                // Sanctum's stateful session guard does not require the
+                // optional personal_access_tokens table. Revoke bearer tokens
+                // when an installation has explicitly enabled that table.
+                if (Schema::hasTable('personal_access_tokens')) {
+                    $user->tokens()->delete();
+                }
             }
 
             $auditLogger->record(

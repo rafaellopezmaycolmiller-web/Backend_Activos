@@ -18,10 +18,7 @@ return [
     |
     */
 
-    // The Railway demo runs a single container. File sessions avoid a failed
-    // login when an old deployment has not yet created the database sessions
-    // table, while still allowing SESSION_DRIVER to be changed later.
-    'driver' => env('SESSION_DRIVER', 'file') === 'database' ? 'file' : env('SESSION_DRIVER', 'file'),
+    'driver' => env('SESSION_DRIVER', 'file'),
 
     /*
     |--------------------------------------------------------------------------

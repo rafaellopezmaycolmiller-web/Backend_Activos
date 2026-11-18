@@ -15,10 +15,6 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->statefulApi();
-        // Temporary demo setting: disable CSRF validation across the app so
-        // the presentation is not blocked by cross-origin cookie handling.
-        // Re-enable this after the presentation before exposing the system.
-        $middleware->validateCsrfTokens(except: ['*']);
         $middleware->redirectGuestsTo(
             fn (Request $request): ?string => $request->expectsJson() || $request->is('api/*') ? null : '/',
         );

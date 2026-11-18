@@ -28,7 +28,9 @@ class AreaController extends Controller
         $user = $request->user();
         $query = Area::query();
 
-        if (! $user->hasGlobalPermission('areas.view')) {
+        // A movement requester must be able to select a destination area;
+        // write permissions on the movement itself still enforce the scope.
+        if (! $user->hasGlobalPermission('areas.view') && ! $user->hasPermission('movements.request')) {
             $query->whereKey($user->area_id);
         }
 

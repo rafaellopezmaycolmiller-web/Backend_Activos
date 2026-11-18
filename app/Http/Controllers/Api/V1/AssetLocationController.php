@@ -17,7 +17,10 @@ class AssetLocationController extends Controller
     {
         Gate::authorize('viewAny', AssetLocation::class);
         $query = AssetLocation::query()->with('area');
-        if (! $request->user()->hasGlobalPermission('locations.view')) {
+        // Movement requesters need destination locations for the selection
+        // form; the movement endpoint validates that the location belongs to
+        // the chosen destination area.
+        if (! $request->user()->hasGlobalPermission('locations.view') && ! $request->user()->hasPermission('movements.request')) {
             $query->where('area_id', $request->user()->area_id);
         }
 

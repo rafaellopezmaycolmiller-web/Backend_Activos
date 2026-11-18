@@ -10,6 +10,7 @@ use App\Models\InventoryCampaign;
 use App\Models\InventoryCheck;
 use App\Models\MovementRequest;
 use App\Models\User;
+use App\Models\TechnicalEvaluation;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -77,6 +78,12 @@ class AuditEventResource extends JsonResource
                 $subject->asset,
                 'disposal',
                 'Solicitud de baja N.° '.$subject->getKey(),
+                $subject,
+            ),
+            $subject instanceof TechnicalEvaluation => $this->assetSubject(
+                $subject->asset,
+                'technical_evaluation',
+                'Evaluación técnica N.° '.$subject->getKey(),
                 $subject,
             ),
             $subject instanceof Custodianship => $this->assetSubject(

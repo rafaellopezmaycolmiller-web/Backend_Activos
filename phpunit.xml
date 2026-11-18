@@ -30,6 +30,7 @@
         <env name="INITIAL_ACCESS_PASSWORD" value="TestingPassword-2026!"/>
         <env name="QUEUE_CONNECTION" value="sync"/>
         <env name="SESSION_DRIVER" value="array"/>
+        <env name="TWILIO_CHANNEL" value="sms"/>
         <env name="PULSE_ENABLED" value="false"/>
         <env name="TELESCOPE_ENABLED" value="false"/>
         <env name="NIGHTWATCH_ENABLED" value="false"/>

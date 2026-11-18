@@ -15,6 +15,6 @@ class StoreMovementRequest extends FormRequest
 
     public function rules(): array
     {
-        return ['asset_id' => ['required', 'integer', Rule::exists('assets', 'id')], 'to_area_id' => ['required', 'integer', Rule::exists('areas', 'id')->where('is_active', true)], 'to_location_id' => ['nullable', 'integer', Rule::exists('asset_locations', 'id')->where('is_active', true)], 'reason' => ['required', 'string', 'max:500']];
+        return ['asset_id' => ['required', 'integer', Rule::exists('assets', 'id')], 'to_area_id' => ['required', 'integer', Rule::exists('areas', 'id')->where('is_active', true)], 'to_location_id' => ['nullable', 'integer', Rule::exists('asset_locations', 'id')->where('is_active', true)], 'to_user_id' => ['nullable', 'integer', Rule::exists('users', 'id')->where('is_active', true)], 'reason' => ['required', 'string', 'max:500']];
     }
 }

@@ -10,6 +10,7 @@ use App\Models\DisposalRequest;
 use App\Models\InventoryCheck;
 use App\Models\MovementRequest;
 use App\Models\User;
+use App\Models\TechnicalEvaluation;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Gate;
@@ -44,6 +45,7 @@ class AuditEventController extends Controller
             DisposalRequest::class => ['asset'],
             InventoryCheck::class => ['asset', 'campaign'],
             MovementRequest::class => ['asset', 'fromArea', 'toArea'],
+            TechnicalEvaluation::class => ['asset', 'requester', 'specialist'],
         ]);
 
         return AuditEventResource::collection($events);
@@ -77,6 +79,7 @@ class AuditEventController extends Controller
             DisposalRequest::class => ['asset'],
             InventoryCheck::class => ['asset', 'campaign'],
             MovementRequest::class => ['asset', 'fromArea', 'toArea'],
+            TechnicalEvaluation::class => ['asset', 'requester', 'specialist'],
         ]);
 
         return new AuditEventResource($auditEvent);

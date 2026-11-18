@@ -6,8 +6,10 @@ use App\AuditEventType;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\V1\StoreCustodianshipRequest;
 use App\Http\Resources\Api\V1\CustodianshipResource;
+use App\Http\Resources\Api\V1\UserResource;
 use App\Models\Asset;
 use App\Models\Custodianship;
+use App\Models\User;
 use App\Services\AuditLogger;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\DB;
@@ -19,7 +21,21 @@ class CustodianshipController extends Controller
     {
         Gate::authorize('view', $asset);
 
-        return CustodianshipResource::collection($asset->custodianships()->latest('started_at')->paginate(25));
+        return CustodianshipResource::collection($asset->custodianships()->with('user', 'assigner')->latest('started_at')->paginate(25));
+    }
+
+    public function candidates(Asset $asset): AnonymousResourceCollection
+    {
+        Gate::authorize('update', $asset);
+
+        return UserResource::collection(
+            User::query()
+                ->with('area', 'roles.permissions')
+                ->where('is_active', true)
+                ->where('area_id', $asset->area_id)
+                ->orderBy('name')
+                ->get(),
+        );
     }
 
     public function store(StoreCustodianshipRequest $request, Asset $asset, AuditLogger $auditLogger): CustodianshipResource
@@ -33,6 +49,6 @@ class CustodianshipController extends Controller
         });
         $auditLogger->record(AuditEventType::CustodyAssigned, $actor, $custodianship, ['asset_id' => $asset->id, 'user_id' => $custodianship->user_id], $asset->area);
 
-        return new CustodianshipResource($custodianship);
+        return new CustodianshipResource($custodianship->load('user', 'assigner'));
     }
 }

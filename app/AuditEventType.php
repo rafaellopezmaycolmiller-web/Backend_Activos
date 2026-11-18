@@ -27,7 +27,16 @@ enum AuditEventType: string
     case InventoryCampaignStarted = 'inventory.campaign_started';
     case InventoryCampaignClosed = 'inventory.campaign_closed';
     case InventoryCheckRecorded = 'inventory.check_recorded';
+    case ReconciliationCreated = 'reconciliation.created';
+    case ReconciliationDifferenceUpdated = 'reconciliation.difference_updated';
     case DisposalRequested = 'disposals.requested';
     case DisposalApproved = 'disposals.approved';
     case DisposalRejected = 'disposals.rejected';
+    case DisposalReviewed = 'disposals.reviewed';
+    case EvaluationRequested = 'evaluations.requested';
+    case EvaluationAssigned = 'evaluations.assigned';
+    case EvaluationCompleted = 'evaluations.completed';
+    case EvaluationDocumentUploaded = 'evaluations.document_uploaded';
+    case DisposalDocumentUploaded = 'disposals.document_uploaded';
+    case ReportExported = 'reports.exported';
 }

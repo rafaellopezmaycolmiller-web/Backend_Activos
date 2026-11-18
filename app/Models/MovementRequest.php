@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-#[Fillable(['asset_id', 'from_area_id', 'from_location_id', 'to_area_id', 'to_location_id', 'requested_by', 'approved_by', 'received_by', 'status', 'reason', 'rejection_reason', 'requested_at', 'decided_at', 'received_at'])]
+#[Fillable(['asset_id', 'from_area_id', 'from_location_id', 'to_area_id', 'to_location_id', 'to_user_id', 'requested_by', 'approved_by', 'received_by', 'status', 'reason', 'rejection_reason', 'requested_at', 'decided_at', 'received_at'])]
 
 class MovementRequest extends Model
 {
@@ -53,6 +53,11 @@ class MovementRequest extends Model
     public function receiver(): BelongsTo
     {
         return $this->belongsTo(User::class, 'received_by');
+    }
+
+    public function destinationCustodian(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'to_user_id');
     }
 
     protected function casts(): array

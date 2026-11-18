@@ -26,4 +26,9 @@ class DisposalRequestPolicy
     {
         return $user->hasPermission('disposals.approve') && $request->requested_by !== $user->id && ($user->hasGlobalPermission('disposals.approve') || $user->area_id === $request->asset->area_id);
     }
+
+    public function review(User $user, DisposalRequest $request): bool
+    {
+        return $user->hasPermission('disposals.review') && ($user->hasGlobalPermission('disposals.view') || $user->area_id === $request->asset->area_id);
+    }
 }

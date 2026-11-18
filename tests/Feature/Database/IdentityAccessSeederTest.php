@@ -32,7 +32,7 @@ class IdentityAccessSeederTest extends TestCase
         $this->assertTrue($patrimonyManager->hasGlobalPermission('movements.approve'));
         $this->assertTrue($patrimonyManager->hasGlobalPermission('disposals.approve'));
         $this->assertFalse($patrimonyManager->hasPermission('users.create'));
-        $this->assertFalse($patrimonyManager->mfa_required);
+        $this->assertTrue($patrimonyManager->mfa_required);
 
         $this->assertTrue($auditor->hasGlobalPermission('assets.view'));
         $this->assertTrue($auditor->hasGlobalPermission('movements.view'));
@@ -41,7 +41,7 @@ class IdentityAccessSeederTest extends TestCase
         $this->assertFalse($auditor->hasPermission('assets.update'));
         $this->assertFalse($auditor->mfa_required);
 
-        $this->assertDatabaseCount('roles', 4);
+        $this->assertDatabaseCount('roles', 6);
         $this->assertDatabaseCount('users', 3);
         $this->assertDatabaseCount('assets', 0);
     }

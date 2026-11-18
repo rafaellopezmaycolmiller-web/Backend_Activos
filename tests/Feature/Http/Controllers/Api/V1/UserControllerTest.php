@@ -182,4 +182,35 @@ class UserControllerTest extends TestCase
             ->assertOk()
             ->assertJsonFragment(['name' => 'María Patrimonio']);
     }
+
+    public function test_deactivating_user_without_token_table_succeeds_and_records_state(): void
+    {
+        $administrator = $this->createAuthorizedUser(
+            ['users.update', 'roles.assign'],
+            RoleScope::Global,
+        );
+        $area = Area::factory()->create();
+        $target = User::factory()->for($area)->create([
+            'name' => 'Usuario por desactivar',
+            'document_number' => '44556677',
+            'email' => 'desactivar@morales.gob.pe',
+        ]);
+        $role = Role::factory()->create();
+
+        $this
+            ->actingAs($administrator)
+            ->putJson("/api/v1/users/{$target->id}", [
+                'area_id' => $area->id,
+                'name' => $target->name,
+                'document_number' => $target->document_number,
+                'job_title' => $target->job_title,
+                'phone' => $target->phone,
+                'email' => $target->email,
+                'is_active' => false,
+                'role_assignments' => [['role_id' => $role->id, 'scope' => RoleScope::OwnArea->value]],
+            ])
+            ->assertOk();
+
+        $this->assertDatabaseHas('users', ['id' => $target->id, 'is_active' => false]);
+    }
 }
