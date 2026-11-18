@@ -23,6 +23,14 @@ class AssetResource extends JsonResource
 
                 return $area === null ? null : ['id' => $area->id, 'code' => $area->code, 'name' => $area->name];
             }),
+            'creator' => $this->whenLoaded('creator', function (): ?array {
+                return $this->creator === null ? null : [
+                    'id' => $this->creator->id,
+                    'name' => $this->creator->name,
+                    'job_title' => $this->creator->job_title,
+                    'area' => $this->creator->area?->name,
+                ];
+            }),
             'location' => new AssetLocationResource($this->whenLoaded('location')),
             'documents' => AssetDocumentResource::collection($this->whenLoaded('documents')),
             'versions' => AssetVersionResource::collection($this->whenLoaded('versions')),

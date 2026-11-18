@@ -30,6 +30,9 @@ class AssetController extends Controller
         if (! $actor->hasGlobalPermission('assets.view')) {
             $query->where('area_id', $actor->area_id);
         }
+        if ($request->boolean('mine')) {
+            $query->where('created_by', $actor->id);
+        }
         if ($request->filled('search')) {
             $search = '%'.strtolower($request->string('search')->trim()).'%';
             $query->where(fn ($builder) => $builder
