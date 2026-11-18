@@ -199,7 +199,7 @@ return [
     |
     */
 
-    'same_site' => env('APP_ENV') === 'production'
+    'same_site' => env('APP_ENV') === 'production' || env('RAILWAY_ENVIRONMENT') !== null
         ? 'none'
         : env('SESSION_SAME_SITE', 'lax'),
 
