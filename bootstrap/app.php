@@ -15,6 +15,10 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->statefulApi();
+        // Temporary demo setting: the frontend and API are hosted on
+        // separate Railway origins. Re-enable CSRF validation after the
+        // presentation and configure a shared cookie domain.
+        $middleware->validateCsrfTokens(except: ['api/*']);
         $middleware->redirectGuestsTo(
             fn (Request $request): ?string => $request->expectsJson() || $request->is('api/*') ? null : '/',
         );
