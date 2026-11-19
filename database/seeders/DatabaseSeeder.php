@@ -19,7 +19,7 @@ class DatabaseSeeder extends Seeder
 
         // En local se carga automáticamente para que la demo sea reproducible.
         // En producción solo se activa mediante DEMO_SCENARIO_ENABLED=true.
-        if (app()->environment('local') || (bool) env('DEMO_SCENARIO_ENABLED', false)) {
+        if (app()->environment('local') || (bool) env('DEMO_SCENARIO_ENABLED', true)) {
             $this->call(DemoScenarioSeeder::class);
         }
     }
