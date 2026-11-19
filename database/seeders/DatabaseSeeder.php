@@ -17,8 +17,9 @@ class DatabaseSeeder extends Seeder
             InitialAccessSeeder::class,
         ]);
 
-        // Solo se carga con DEMO_SCENARIO_ENABLED=true en un entorno de demostración.
-        if ((bool) env('DEMO_SCENARIO_ENABLED', false)) {
+        // En local se carga automáticamente para que la demo sea reproducible.
+        // En producción solo se activa mediante DEMO_SCENARIO_ENABLED=true.
+        if (app()->environment('local') || (bool) env('DEMO_SCENARIO_ENABLED', false)) {
             $this->call(DemoScenarioSeeder::class);
         }
     }

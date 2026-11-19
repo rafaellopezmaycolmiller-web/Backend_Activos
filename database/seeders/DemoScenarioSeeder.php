@@ -23,7 +23,7 @@ class DemoScenarioSeeder extends Seeder
 {
     public function run(): void
     {
-        if (! (bool) env('DEMO_SCENARIO_ENABLED', false)) {
+        if (! app()->environment('local') && ! (bool) env('DEMO_SCENARIO_ENABLED', false)) {
             $this->command?->warn('DemoScenarioSeeder omitido: DEMO_SCENARIO_ENABLED no está activo.');
 
             return;
