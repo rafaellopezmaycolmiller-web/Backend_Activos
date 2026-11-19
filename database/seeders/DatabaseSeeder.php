@@ -16,5 +16,10 @@ class DatabaseSeeder extends Seeder
             AssetCatalogSeeder::class,
             InitialAccessSeeder::class,
         ]);
+
+        // Solo se carga con DEMO_SCENARIO_ENABLED=true en un entorno de demostración.
+        if ((bool) env('DEMO_SCENARIO_ENABLED', false)) {
+            $this->call(DemoScenarioSeeder::class);
+        }
     }
 }
