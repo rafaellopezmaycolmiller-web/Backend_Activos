@@ -70,7 +70,7 @@ class SessionController extends Controller
 
         $remember = $request->boolean('remember');
 
-        if ($user->mfa_required) {
+        if ($user->mfa_required && config('security.mfa.enabled')) {
             try {
                 $challenge = $issueLoginChallenge->handle($user, $remember);
             } catch (Throwable $exception) {

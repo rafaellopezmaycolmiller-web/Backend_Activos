@@ -7,6 +7,7 @@ return [
     ],
 
     'mfa' => [
+        'enabled' => filter_var(env('MFA_ENABLED', false), FILTER_VALIDATE_BOOL),
         'expires_minutes' => (int) env('MFA_EXPIRES_MINUTES', 5),
         'max_attempts' => (int) env('MFA_MAX_ATTEMPTS', 5),
     ],

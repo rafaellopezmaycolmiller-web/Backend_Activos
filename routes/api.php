@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\V1\AreaController;
+use App\Http\Controllers\Api\V1\AccessRecoveryController;
 use App\Http\Controllers\Api\V1\AssetCategoryController;
 use App\Http\Controllers\Api\V1\AssetController;
 use App\Http\Controllers\Api\V1\AssetLocationController;
@@ -43,6 +44,9 @@ Route::prefix('v1')->name('api.v1.')->group(function (): void {
     Route::post('/auth/reset-password', [NewPasswordController::class, 'store'])
         ->middleware('throttle:password-reset')
         ->name('auth.password.reset');
+    Route::post('/auth/access-recovery-requests', [AccessRecoveryController::class, 'store'])
+        ->middleware('throttle:password-reset')
+        ->name('auth.access-recovery.store');
 
     Route::middleware(['auth:sanctum', 'active'])->group(function (): void {
         Route::get('/auth/me', [CurrentUserController::class, 'show'])->name('auth.me');
@@ -50,6 +54,8 @@ Route::prefix('v1')->name('api.v1.')->group(function (): void {
         Route::get('/dashboard', [DashboardController::class, 'show'])->name('dashboard.show');
 
         Route::apiResource('users', UserController::class)->only(['index', 'store', 'show', 'update']);
+        Route::get('/access-recovery-requests', [AccessRecoveryController::class, 'index'])->name('access-recovery.index');
+        Route::patch('/access-recovery-requests/{accessRecoveryRequest}', [AccessRecoveryController::class, 'resolve'])->name('access-recovery.resolve');
         Route::apiResource('areas', AreaController::class)->only(['index', 'store', 'show', 'update']);
         Route::apiResource('assets', AssetController::class)->only(['index', 'store', 'show', 'update']);
         Route::get('/assets/code/{assetCode}', [AssetController::class, 'byCode'])->name('assets.by-code');

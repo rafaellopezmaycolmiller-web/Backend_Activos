@@ -11,6 +11,9 @@ enum AuditEventType: string
     case Logout = 'auth.logout';
     case PasswordResetRequested = 'auth.password_reset.requested';
     case PasswordResetCompleted = 'auth.password_reset.completed';
+    case AccessRecoveryRequested = 'auth.access_recovery.requested';
+    case AccessRecoveryApproved = 'auth.access_recovery.approved';
+    case AccessRecoveryRejected = 'auth.access_recovery.rejected';
     case UserCreated = 'identity.user.created';
     case UserUpdated = 'identity.user.updated';
     case AreaCreated = 'organization.area.created';

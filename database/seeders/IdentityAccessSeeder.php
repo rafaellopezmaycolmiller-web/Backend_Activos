@@ -16,6 +16,7 @@ class IdentityAccessSeeder extends Seeder
             ['code' => 'users.view', 'name' => 'Consultar usuarios', 'module' => 'identity'],
             ['code' => 'users.create', 'name' => 'Crear usuarios', 'module' => 'identity'],
             ['code' => 'users.update', 'name' => 'Actualizar usuarios', 'module' => 'identity'],
+            ['code' => 'access_recovery.manage', 'name' => 'Gestionar recuperaciones de acceso', 'module' => 'identity'],
             ['code' => 'roles.view', 'name' => 'Consultar roles y permisos', 'module' => 'identity'],
             ['code' => 'roles.assign', 'name' => 'Asignar roles y alcances', 'module' => 'identity'],
             ['code' => 'areas.view', 'name' => 'Consultar áreas', 'module' => 'organization'],
@@ -69,6 +70,7 @@ class IdentityAccessSeeder extends Seeder
             'administrador_tecnico' => [
                 'dashboard.view',
                 'users.view', 'users.create', 'users.update', 'roles.view', 'roles.assign',
+                'access_recovery.manage',
                 'areas.view', 'areas.manage', 'audit.view', 'audit.export', 'audit.manage',
                 'assets.view', 'assets.create', 'assets.update', 'asset_categories.view', 'asset_categories.manage', 'asset_statuses.view', 'locations.view', 'locations.manage', 'asset_documents.view', 'asset_documents.upload',
                 'movements.view', 'custody.view', 'inventory.view', 'reconciliation.view', 'disposals.view', 'evaluations.view', 'reports.view', 'reports.export',
@@ -76,7 +78,6 @@ class IdentityAccessSeeder extends Seeder
             'jefe_patrimonio' => [
                 'dashboard.view',
                 'areas.view',
-                'audit.view',
                 'assets.view', 'assets.create', 'assets.update', 'asset_categories.view', 'asset_categories.manage', 'asset_statuses.view', 'locations.view', 'locations.manage', 'asset_documents.view', 'asset_documents.upload',
                 'movements.view', 'movements.request', 'movements.approve', 'movements.receive', 'custody.view', 'custody.assign',
                 'inventory.view', 'inventory.create', 'inventory.check', 'inventory.manage', 'disposals.view', 'disposals.request', 'disposals.approve',
@@ -84,10 +85,10 @@ class IdentityAccessSeeder extends Seeder
                 'reconciliation.view', 'reconciliation.create', 'reconciliation.review',
             ],
             'asistente_patrimonio' => ['dashboard.view', 'areas.view', 'assets.view', 'assets.create', 'assets.update', 'asset_categories.view', 'asset_statuses.view', 'locations.view', 'asset_documents.view', 'asset_documents.upload', 'movements.view', 'movements.request', 'custody.view', 'inventory.view', 'inventory.create', 'inventory.check', 'reconciliation.view', 'reconciliation.create', 'evaluations.view', 'evaluations.create', 'evaluations.update', 'reports.view'],
-            'asistente_ti' => ['dashboard.view', 'areas.view', 'users.view', 'assets.view', 'assets.create', 'assets.update', 'asset_categories.view', 'asset_statuses.view', 'locations.view', 'asset_documents.view', 'asset_documents.upload', 'audit.view'],
-            'asistente_oci' => ['dashboard.view', 'areas.view', 'audit.view', 'audit.export', 'assets.view', 'asset_categories.view', 'asset_statuses.view', 'locations.view', 'asset_documents.view', 'movements.view', 'custody.view', 'inventory.view', 'reconciliation.view', 'disposals.view', 'evaluations.view', 'reports.view', 'reports.export'],
+            'asistente_ti' => ['dashboard.view', 'areas.view', 'users.view', 'access_recovery.manage', 'assets.view', 'assets.create', 'assets.update', 'asset_categories.view', 'asset_statuses.view', 'locations.view', 'asset_documents.view', 'asset_documents.upload'],
+            'asistente_oci' => ['dashboard.view', 'areas.view', 'assets.view', 'asset_categories.view', 'asset_statuses.view', 'locations.view', 'asset_documents.view', 'movements.view', 'custody.view', 'inventory.view', 'reconciliation.view', 'disposals.view', 'evaluations.view', 'reports.view', 'reports.export'],
             'oci_auditor' => [
-                'dashboard.view', 'users.view', 'areas.view', 'roles.view', 'audit.view', 'audit.export',
+                'dashboard.view', 'users.view', 'areas.view', 'roles.view',
                 'assets.view', 'asset_categories.view', 'asset_statuses.view', 'locations.view', 'asset_documents.view',
                 'movements.view', 'custody.view', 'inventory.view', 'reconciliation.view', 'disposals.view',
                 'evaluations.view', 'reports.view', 'reports.export',
