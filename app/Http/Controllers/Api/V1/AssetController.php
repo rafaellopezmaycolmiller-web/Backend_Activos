@@ -158,6 +158,6 @@ class AssetController extends Controller
     /** @return array<string, mixed> */
     private function snapshot(Asset $asset): array
     {
-        return $asset->only(['asset_code', 'inventory_code', 'category_id', 'status_id', 'area_id', 'location_id', 'name', 'description', 'specifications', 'brand', 'model', 'serial_number', 'acquisition_date', 'acquisition_value', 'useful_life_years', 'is_active']);
+        return $asset->only(['asset_code', 'inventory_code', 'category_id', 'status_id', 'area_id', 'location_id', 'name', 'description', 'brand', 'model', 'serial_number', 'acquisition_date', 'acquisition_value', 'useful_life_years', 'is_active']);
     }
 }
