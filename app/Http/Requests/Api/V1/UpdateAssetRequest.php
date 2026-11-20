@@ -21,6 +21,7 @@ class UpdateAssetRequest extends FormRequest
         return [
             'inventory_code' => ['nullable', 'string', 'max:40', Rule::unique('assets')->ignore($asset)],
             'category_id' => ['required', 'integer', Rule::exists('asset_categories', 'id')->where('is_active', true)->whereIn('code', AssetCategory::PROJECT_SCOPE_CODES)],
+            'asset_type' => ['required', 'string', 'max:80'],
             'status_id' => ['required', 'integer', Rule::exists('asset_statuses', 'id')->where('is_active', true)],
             'area_id' => ['required', 'integer', Rule::exists('areas', 'id')->where('is_active', true)],
             'location_id' => ['nullable', 'integer', Rule::exists('asset_locations', 'id')->where('is_active', true)],

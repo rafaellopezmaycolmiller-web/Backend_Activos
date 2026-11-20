@@ -49,6 +49,8 @@ class AssetController extends Controller
         if ($request->filled('status')) {
             $query->whereHas('status', fn ($status) => $status->where('code', $request->string('status')->toString()));
         }
+        if ($request->filled('category')) $query->whereHas('category', fn ($category) => $category->where('code', $request->string('category')->toString()));
+        if ($request->filled('asset_type')) $query->where('asset_type', $request->string('asset_type')->toString());
 
         // Mostrar primero los registros más recientes facilita comprobar un
         // alta recién realizada en “Todos los activos autorizados”.
@@ -158,6 +160,6 @@ class AssetController extends Controller
     /** @return array<string, mixed> */
     private function snapshot(Asset $asset): array
     {
-        return $asset->only(['asset_code', 'inventory_code', 'category_id', 'status_id', 'area_id', 'location_id', 'name', 'description', 'brand', 'model', 'serial_number', 'acquisition_date', 'acquisition_value', 'useful_life_years', 'is_active']);
+        return $asset->only(['asset_code', 'inventory_code', 'category_id', 'asset_type', 'status_id', 'area_id', 'location_id', 'name', 'description', 'brand', 'model', 'serial_number', 'acquisition_date', 'acquisition_value', 'useful_life_years', 'is_active']);
     }
 }

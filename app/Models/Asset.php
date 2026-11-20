@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-#[Fillable(['asset_code', 'inventory_code', 'category_id', 'status_id', 'area_id', 'location_id', 'name', 'description', 'brand', 'model', 'serial_number', 'acquisition_date', 'acquisition_value', 'useful_life_years', 'current_version', 'created_by', 'updated_by', 'is_active'])]
+#[Fillable(['asset_code', 'inventory_code', 'category_id', 'asset_type', 'status_id', 'area_id', 'location_id', 'name', 'description', 'brand', 'model', 'serial_number', 'acquisition_date', 'acquisition_value', 'useful_life_years', 'current_version', 'created_by', 'updated_by', 'is_active'])]
 
 class Asset extends Model
 {
