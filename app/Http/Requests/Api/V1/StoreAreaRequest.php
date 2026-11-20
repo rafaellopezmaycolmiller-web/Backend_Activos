@@ -20,7 +20,7 @@ class StoreAreaRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'parent_id' => ['nullable', 'integer', Rule::exists('areas', 'id')],
+            'parent_id' => ['required', 'integer', Rule::exists('areas', 'id')],
             'code' => ['required', 'string', 'max:30', 'alpha_dash:ascii', Rule::unique('areas')],
             'name' => ['required', 'string', 'max:160'],
             'description' => ['nullable', 'string', 'max:1000'],
