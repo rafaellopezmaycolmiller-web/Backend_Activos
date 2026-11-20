@@ -37,7 +37,28 @@ class ProcessDemoSeeder extends Seeder
             $patLocation = $patArea->assetLocations()->where('code', 'PRINCIPAL')->firstOrFail();
             $logLocation = $logArea->assetLocations()->where('code', 'PRINCIPAL')->firstOrFail();
             $ociLocation = $ociArea->assetLocations()->where('code', 'PRINCIPAL')->firstOrFail();
-            $assets = Asset::query()->whereIn('asset_code', ['MDM-DEMO-001', 'MDM-DEMO-005', 'MDM-DEMO-006', 'MDM-DEMO-007', 'MDM-DEMO-008'])->get()->keyBy('asset_code');
+            // El catálogo demo actual usa códigos AYU-*. Conservamos primero
+            // compatibilidad con MDM-DEMO-* y, si no existen, elegimos bienes
+            // demo activos de las áreas correspondientes. Así el seeder no
+            // falla en Railway por depender de códigos históricos.
+            $catalog = Asset::query()->where('is_active', true)->orderBy('id')->get();
+            $byCode = $catalog->keyBy('asset_code');
+            $pick = static function (array $legacyCodes, int $areaId) use ($byCode, $catalog): Asset {
+                foreach ($legacyCodes as $code) {
+                    if ($byCode->has($code)) {
+                        return $byCode->get($code);
+                    }
+                }
+
+                return $catalog->firstWhere('area_id', $areaId) ?? Asset::query()->where('area_id', $areaId)->where('is_active', true)->firstOrFail();
+            };
+            $assets = [
+                'MDM-DEMO-001' => $pick(['MDM-DEMO-001', 'AYU-PAT-CARLA-001'], $patArea->id),
+                'MDM-DEMO-005' => $pick(['MDM-DEMO-005', 'AYU-PAT-CARLA-002'], $patArea->id),
+                'MDM-DEMO-006' => $pick(['MDM-DEMO-006', 'AYU-PAT-CARLA-003'], $patArea->id),
+                'MDM-DEMO-007' => $pick(['MDM-DEMO-007', 'AYU-OCI-SOFIA-001'], $ociArea->id),
+                'MDM-DEMO-008' => $pick(['MDM-DEMO-008', 'AYU-OCI-SOFIA-002'], $ociArea->id),
+            ];
 
             $this->movement($assets['MDM-DEMO-001'], $patArea, $patLocation, $logArea, $logLocation, $pat, $assistantPat, 'pending', 'Traslado de equipo a Logística para apoyo de inventario.');
             $this->movement($assets['MDM-DEMO-005'], $patArea, $patLocation, $ociArea, $ociLocation, $pat, $assistantPat, 'rejected', 'Solicitud rechazada: el destino requiere validación previa.');
