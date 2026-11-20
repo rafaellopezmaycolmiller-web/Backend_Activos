@@ -56,6 +56,8 @@ class AccessRecoveryController extends Controller
                 $accessRecoveryRequest->user->forceFill([
                     'password' => $temporaryPassword,
                     'remember_token' => Str::random(60),
+                    'failed_login_attempts' => 0,
+                    'locked_until' => null,
                 ])->save();
             }
             $accessRecoveryRequest->update([
