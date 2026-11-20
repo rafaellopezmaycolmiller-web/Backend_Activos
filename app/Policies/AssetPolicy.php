@@ -20,7 +20,8 @@ class AssetPolicy
      */
     public function view(User $user, Asset $asset): bool
     {
-        return $user->hasGlobalPermission('assets.view') || ($user->hasPermission('assets.view') && $user->area_id === $asset->area_id);
+        return $user->hasGlobalPermission('assets.view')
+            || ($user->hasPermission('assets.view') && ($user->area_id === $asset->area_id || $asset->created_by === $user->id));
     }
 
     /**

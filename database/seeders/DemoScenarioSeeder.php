@@ -117,6 +117,29 @@ class DemoScenarioSeeder extends Seeder
                     'metadata' => ['source' => 'Escenario ficticio de demostración', 'demo_only' => true],
                 ]);
             }
+
+            // Corrige registros demo heredados que atribuían la creación a OCI.
+            // OCI puede ser el área designada/destino, pero no el registrador.
+            $patrimonyCreator = User::query()->where('email', 'patrimonio@moralesmuni.gob.pe')->firstOrFail();
+            $legacyOciAssets = Asset::query()->whereHas('creator.area', static function ($query): void {
+                $query->where('code', 'OCI');
+            })->get();
+            foreach ($legacyOciAssets as $legacyAsset) {
+                $legacyAsset->forceFill([
+                    'created_by' => $patrimonyCreator->id,
+                    'updated_by' => $patrimonyCreator->id,
+                    'description' => str_replace(
+                        ['Auditoría OCI', 'Órgano de Control Institucional'],
+                        'Responsable de Patrimonio',
+                        (string) $legacyAsset->description,
+                    ),
+                ])->saveQuietly();
+
+                AssetDocument::query()
+                    ->where('asset_id', $legacyAsset->id)
+                    ->where('metadata->demo_only', true)
+                    ->update(['uploaded_by' => $patrimonyCreator->id]);
+            }
         });
 
         $this->command?->info('Escenario demo cargado: 6 ayudantes y 18 activos con fotografías.');
@@ -149,12 +172,12 @@ class DemoScenarioSeeder extends Seeder
             ['AYU-PAT-DIEGO-001', 'diego.salazar@moralesmuni.gob.pe', 'PAT', 'MOB', 'Silla operativa para inventario', 'ErgoMuni', 'EM-01', 'SIL-AYU-DIEGO-001', 'chair-cutout.png'],
             ['AYU-PAT-DIEGO-002', 'diego.salazar@moralesmuni.gob.pe', 'PAT', 'MOB', 'Archivador auxiliar de patrimonio', 'MetalOffice', 'MO-2G', 'ARC-AYU-DIEGO-002', 'cabinet-cutout.png'],
             ['AYU-PAT-DIEGO-003', 'diego.salazar@moralesmuni.gob.pe', 'PAT', 'MOB', 'Estantería auxiliar de expedientes', 'MetalStore', 'MS-150', 'EST-AYU-DIEGO-003', 'shelf-cutout.png'],
-            ['AYU-OCI-SOFIA-001', 'sofia.paredes@moralesmuni.gob.pe', 'OCI', 'TEC', 'Escáner para expedientes de control', 'ScanPro', 'SP-520', 'ESC-AYU-SOFIA-001', 'scanner-cutout.png'],
-            ['AYU-OCI-SOFIA-002', 'sofia.paredes@moralesmuni.gob.pe', 'OCI', 'TEC', 'Monitor LED para revisión documental', 'VisionOffice', 'VO-27Q', 'MON-AYU-SOFIA-002', 'monitor-cutout.png'],
-            ['AYU-OCI-SOFIA-003', 'sofia.paredes@moralesmuni.gob.pe', 'OCI', 'TEC', 'Impresora de informes de auditoría', 'PrintOffice', 'PO-410', 'IMP-AYU-SOFIA-003', 'printer-cutout.png'],
-            ['AYU-OCI-MARCO-001', 'marco.vega@moralesmuni.gob.pe', 'OCI', 'MOB', 'Archivador de documentación reservada', 'MetalOffice', 'MO-4G', 'ARC-AYU-MARCO-001', 'cabinet-cutout.png'],
-            ['AYU-OCI-MARCO-002', 'marco.vega@moralesmuni.gob.pe', 'OCI', 'MOB', 'Silla ergonómica de auditoría', 'ErgoMuni', 'EM-02', 'SIL-AYU-MARCO-002', 'chair-cutout.png'],
-            ['AYU-OCI-MARCO-003', 'marco.vega@moralesmuni.gob.pe', 'OCI', 'TEC', 'Monitor para análisis de evidencias', 'VisionOffice', 'VO-24F', 'MON-AYU-MARCO-003', 'monitor-cutout.png'],
+            ['AYU-OCI-SOFIA-001', 'diego.salazar@moralesmuni.gob.pe', 'OCI', 'TEC', 'Escáner para expedientes de control', 'ScanPro', 'SP-520', 'ESC-AYU-SOFIA-001', 'scanner-cutout.png'],
+            ['AYU-OCI-SOFIA-002', 'diego.salazar@moralesmuni.gob.pe', 'OCI', 'TEC', 'Monitor LED para revisión documental', 'VisionOffice', 'VO-27Q', 'MON-AYU-SOFIA-002', 'monitor-cutout.png'],
+            ['AYU-OCI-SOFIA-003', 'diego.salazar@moralesmuni.gob.pe', 'OCI', 'TEC', 'Impresora de informes de auditoría', 'PrintOffice', 'PO-410', 'IMP-AYU-SOFIA-003', 'printer-cutout.png'],
+            ['AYU-OCI-MARCO-001', 'carla.torres@moralesmuni.gob.pe', 'OCI', 'MOB', 'Archivador de documentación reservada', 'MetalOffice', 'MO-4G', 'ARC-AYU-MARCO-001', 'cabinet-cutout.png'],
+            ['AYU-OCI-MARCO-002', 'carla.torres@moralesmuni.gob.pe', 'OCI', 'MOB', 'Silla ergonómica de auditoría', 'ErgoMuni', 'EM-02', 'SIL-AYU-MARCO-002', 'chair-cutout.png'],
+            ['AYU-OCI-MARCO-003', 'carla.torres@moralesmuni.gob.pe', 'OCI', 'TEC', 'Monitor para análisis de evidencias', 'VisionOffice', 'VO-24F', 'MON-AYU-MARCO-003', 'monitor-cutout.png'],
         ];
 
         return array_map(fn (array $row): array => ['code' => $row[0], 'owner' => $row[1], 'area' => $row[2], 'category' => $row[3], 'name' => $row[4], 'brand' => $row[5], 'model' => $row[6], 'serial' => $row[7], 'image' => $row[8]], $rows);

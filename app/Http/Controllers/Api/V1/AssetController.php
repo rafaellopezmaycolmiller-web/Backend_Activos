@@ -28,7 +28,13 @@ class AssetController extends Controller
         $actor = $request->user();
         $query = Asset::query()->with('category', 'status', 'area', 'location', 'documents', 'creator.area');
         if (! $actor->hasGlobalPermission('assets.view')) {
-            $query->where('area_id', $actor->area_id);
+            // Un usuario ve el padrón de su área y también los bienes que
+            // acaba de registrar, aunque los haya asignado a otra área.
+            // Esto evita que un registro desaparezca de “Todos” y solo
+            // aparezca en “Registrados por mí”.
+            $query->where(fn ($scope) => $scope
+                ->where('area_id', $actor->area_id)
+                ->orWhere('created_by', $actor->id));
         }
         if ($request->boolean('mine')) {
             $query->where('created_by', $actor->id);
@@ -40,8 +46,13 @@ class AssetController extends Controller
                 ->orWhereRaw('LOWER(name) LIKE ?', [$search])
                 ->orWhereRaw("LOWER(COALESCE(serial_number, '')) LIKE ?", [$search]));
         }
+        if ($request->filled('status')) {
+            $query->whereHas('status', fn ($status) => $status->where('code', $request->string('status')->toString()));
+        }
 
-        return AssetResource::collection($query->orderBy('name')->paginate(min(50, max(1, $request->integer('per_page', 20)))));
+        // Mostrar primero los registros más recientes facilita comprobar un
+        // alta recién realizada en “Todos los activos autorizados”.
+        return AssetResource::collection($query->orderByDesc('id')->paginate(min(50, max(1, $request->integer('per_page', 20)))));
     }
 
     public function store(StoreAssetRequest $request, AuditLogger $auditLogger): JsonResponse

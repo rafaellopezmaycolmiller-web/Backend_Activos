@@ -9,7 +9,10 @@ class AccessRecoveryResolveRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return $this->user()?->hasGlobalPermission('access_recovery.manage') ?? false;
+        $user = $this->user();
+
+        return $user !== null
+            && ($user->hasGlobalPermission('access_recovery.manage') || $user->roles()->whereIn('code', ['administrador_tecnico', 'asistente_ti'])->exists());
     }
 
     public function rules(): array

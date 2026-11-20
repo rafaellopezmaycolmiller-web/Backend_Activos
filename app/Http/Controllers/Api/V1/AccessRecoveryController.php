@@ -38,7 +38,8 @@ class AccessRecoveryController extends Controller
 
     public function index(Request $request): JsonResponse
     {
-        abort_unless($request->user()?->hasGlobalPermission('access_recovery.manage'), 403);
+        $user = $request->user();
+        abort_unless($user !== null && ($user->hasGlobalPermission('access_recovery.manage') || $user->roles()->whereIn('code', ['administrador_tecnico', 'asistente_ti'])->exists()), 403);
 
         return response()->json(['data' => AccessRecoveryRequest::query()->with(['user.area', 'resolver'])->latest()->get()]);
     }

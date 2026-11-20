@@ -30,7 +30,9 @@ class DashboardController extends Controller
         $assets = Asset::query();
 
         if (! $user->hasGlobalPermission('assets.view')) {
-            $assets->where('area_id', $user->area_id);
+            $assets->where(fn ($scope) => $scope
+                ->where('area_id', $user->area_id)
+                ->orWhere('created_by', $user->id));
         }
 
         if (! $user->hasGlobalPermission('audit.view')) {
@@ -43,7 +45,15 @@ class DashboardController extends Controller
                 'users_active' => (clone $users)->where('is_active', true)->count(),
                 'areas_active' => Area::query()->where('is_active', true)->count(),
                 'assets_total' => (clone $assets)->count(),
-                'assets_active' => (clone $assets)->where('is_active', true)->count(),
+                'assets_active' => (clone $assets)
+                    ->where('is_active', true)
+                    ->whereHas('status', fn ($status) => $status->where('code', '<>', 'BAJA'))
+                    ->count(),
+                'assets_with_serial' => (clone $assets)->whereNotNull('serial_number')->where('serial_number', '<>', '')->count(),
+                'assets_maintenance' => (clone $assets)
+                    ->where('is_active', true)
+                    ->whereHas('status', fn ($status) => $status->where('code', 'MANTENIMIENTO'))
+                    ->count(),
                 'audit_events_24h' => $user->hasPermission('audit.view')
                     ? $auditEvents->count()
                     : null,
