@@ -54,6 +54,8 @@ class DemoScenarioSeeder extends Seeder
                         'email_verified_at' => now(),
                         'is_active' => true,
                         'mfa_required' => false,
+                        'failed_login_attempts' => 0,
+                        'locked_until' => null,
                     ],
                 );
                 $user->roles()->sync([$role->id => ['scope' => RoleScope::OwnArea->value]]);
