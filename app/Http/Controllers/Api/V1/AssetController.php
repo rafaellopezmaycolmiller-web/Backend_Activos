@@ -9,6 +9,7 @@ use App\Http\Requests\Api\V1\UpdateAssetRequest;
 use App\Http\Resources\Api\V1\AssetDocumentResource;
 use App\Http\Resources\Api\V1\AssetResource;
 use App\Models\Asset;
+use App\Models\Custodianship;
 use App\Models\AssetDocument;
 use App\Services\AuditLogger;
 use Illuminate\Http\JsonResponse;
@@ -66,6 +67,9 @@ class AssetController extends Controller
         $attributes['current_version'] = 1;
         $asset = DB::transaction(function () use ($attributes, $actor, $auditLogger): Asset {
             $asset = Asset::create($attributes);
+            if ($asset->responsible_name !== null || $asset->responsible_document !== null) {
+                Custodianship::create(['asset_id' => $asset->id, 'user_id' => null, 'responsible_name' => $asset->responsible_name, 'responsible_document' => $asset->responsible_document, 'area_id' => $asset->area_id, 'location_id' => $asset->location_id, 'assigned_by' => $actor->id, 'started_at' => now(), 'status' => 'active', 'notes' => 'Custodia inicial registrada durante el alta del activo.']);
+            }
             $asset->versions()->create(['version' => 1, 'action' => 'created', 'snapshot' => $this->snapshot($asset), 'changed_by' => $actor->id]);
             $auditLogger->record(AuditEventType::AssetCreated, $actor, $asset, ['version' => 1], $asset->area);
 

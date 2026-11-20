@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-#[Fillable(['asset_id', 'user_id', 'assigned_by', 'started_at', 'ended_at', 'status', 'notes'])]
+#[Fillable(['asset_id', 'user_id', 'responsible_name', 'responsible_document', 'area_id', 'location_id', 'assigned_by', 'started_at', 'ended_at', 'status', 'notes'])]
 
 class Custodianship extends Model
 {

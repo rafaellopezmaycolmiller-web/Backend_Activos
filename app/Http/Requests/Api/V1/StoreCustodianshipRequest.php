@@ -16,7 +16,11 @@ class StoreCustodianshipRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'user_id' => ['required', 'integer', Rule::exists('users', 'id')->where('is_active', true)],
+            'user_id' => ['nullable', 'integer', Rule::exists('users', 'id')->where('is_active', true)],
+            'responsible_name' => ['nullable', 'string', 'max:180'],
+            'responsible_document' => ['nullable', 'string', 'max:30'],
+            'area_id' => ['nullable', 'integer', Rule::exists('areas', 'id')->where('is_active', true)],
+            'location_id' => ['nullable', 'integer', Rule::exists('asset_locations', 'id')->where('is_active', true)],
             'notes' => ['nullable', 'string', 'max:500'],
         ];
     }

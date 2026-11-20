@@ -45,7 +45,7 @@ class CustodianshipController extends Controller
         $custodianship = DB::transaction(function () use ($request, $asset, $actor): Custodianship {
             $asset->custodianships()->where('status', 'active')->update(['status' => 'ended', 'ended_at' => now()]);
 
-            return $asset->custodianships()->create(['user_id' => $request->integer('user_id'), 'assigned_by' => $actor->id, 'started_at' => now(), 'status' => 'active', 'notes' => $request->string('notes')->toString() ?: null]);
+            return $asset->custodianships()->create(['user_id' => $request->integer('user_id') ?: null, 'responsible_name' => $request->string('responsible_name')->toString() ?: null, 'responsible_document' => $request->string('responsible_document')->toString() ?: null, 'area_id' => $request->integer('area_id') ?: $asset->area_id, 'location_id' => $request->integer('location_id') ?: $asset->location_id, 'assigned_by' => $actor->id, 'started_at' => now(), 'status' => 'active', 'notes' => $request->string('notes')->toString() ?: null]);
         });
         $auditLogger->record(AuditEventType::CustodyAssigned, $actor, $custodianship, ['asset_id' => $asset->id, 'user_id' => $custodianship->user_id], $asset->area);
 
