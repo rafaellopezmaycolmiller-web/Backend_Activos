@@ -25,6 +25,7 @@ class StoreAssetRequest extends FormRequest
             'status_id' => ['required', 'integer', Rule::exists('asset_statuses', 'id')->where('is_active', true)],
             'area_id' => ['required', 'integer', Rule::exists('areas', 'id')->where('is_active', true)],
             'location_id' => ['nullable', 'integer', Rule::exists('asset_locations', 'id')->where('is_active', true)],
+            'responsible_name' => ['nullable', 'string', 'max:180'], 'responsible_document' => ['nullable', 'string', 'max:30'],
             'name' => ['required', 'string', 'max:180'], 'description' => ['nullable', 'string', 'max:5000'],
             'brand' => ['nullable', 'string', 'max:100'], 'model' => ['nullable', 'string', 'max:120'],
             'serial_number' => ['nullable', 'string', 'max:120'], 'acquisition_date' => ['nullable', 'date'],

@@ -13,6 +13,7 @@ class AssetResource extends JsonResource
             'id' => $this->id, 'asset_code' => $this->asset_code, 'inventory_code' => $this->inventory_code,
             'name' => $this->name, 'asset_type' => $this->asset_type, 'description' => $this->description, 'specifications' => $this->specifications, 'brand' => $this->brand, 'model' => $this->model,
             'serial_number' => $this->serial_number, 'acquisition_date' => $this->acquisition_date?->toDateString(),
+            'responsible_name' => $this->responsible_name, 'responsible_document' => $this->responsible_document,
             'acquisition_value' => $this->acquisition_value, 'useful_life_years' => $this->useful_life_years,
             'current_version' => $this->current_version, 'is_active' => $this->is_active,
             'category' => new AssetCategoryResource($this->whenLoaded('category')),
