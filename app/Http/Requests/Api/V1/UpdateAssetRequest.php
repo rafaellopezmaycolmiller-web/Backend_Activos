@@ -25,6 +25,8 @@ class UpdateAssetRequest extends FormRequest
             'area_id' => ['required', 'integer', Rule::exists('areas', 'id')->where('is_active', true)],
             'location_id' => ['nullable', 'integer', Rule::exists('asset_locations', 'id')->where('is_active', true)],
             'name' => ['required', 'string', 'max:180'], 'description' => ['nullable', 'string', 'max:5000'],
+            'specifications' => ['nullable', 'array'],
+            'specifications.*' => ['nullable', 'string', 'max:255'],
             'brand' => ['nullable', 'string', 'max:100'], 'model' => ['nullable', 'string', 'max:120'],
             'serial_number' => ['nullable', 'string', 'max:120'], 'acquisition_date' => ['nullable', 'date'],
             'acquisition_value' => ['nullable', 'numeric', 'min:0', 'max:999999999999.99'],
