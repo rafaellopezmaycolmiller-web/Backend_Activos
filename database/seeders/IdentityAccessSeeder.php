@@ -73,7 +73,7 @@ class IdentityAccessSeeder extends Seeder
                 'access_recovery.manage',
                 'areas.view', 'areas.manage', 'audit.view', 'audit.export', 'audit.manage',
                 'assets.view', 'assets.create', 'assets.update', 'asset_categories.view', 'asset_categories.manage', 'asset_statuses.view', 'locations.view', 'locations.manage', 'asset_documents.view', 'asset_documents.upload',
-                'movements.view', 'custody.view', 'inventory.view', 'reconciliation.view', 'disposals.view', 'evaluations.view', 'reports.view', 'reports.export',
+                'movements.view', 'movements.request', 'movements.approve', 'movements.receive', 'custody.view', 'custody.assign', 'inventory.view', 'inventory.create', 'inventory.check', 'inventory.manage', 'reconciliation.view', 'reconciliation.create', 'reconciliation.review', 'disposals.view', 'disposals.request', 'disposals.approve', 'disposals.review', 'evaluations.view', 'evaluations.create', 'evaluations.assign', 'evaluations.update', 'reports.view', 'reports.export',
             ],
             'jefe_patrimonio' => [
                 'dashboard.view',
