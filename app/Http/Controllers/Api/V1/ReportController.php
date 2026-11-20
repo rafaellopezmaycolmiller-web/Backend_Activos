@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Models\Asset;
+use App\Models\Area;
 use App\AuditEventType;
 use App\Models\AuditEvent;
 use App\Models\Custodianship;
@@ -67,12 +68,13 @@ return response()->streamDownload(function () use ($query): void {
     {
         $user = $request->user();
         $areaId = $request->integer('area_id') ?: null;
+        $areaIds = $areaId ? $this->areaTreeIds($areaId) : [];
         $locationId = $request->integer('location_id') ?: null;
         $code = trim($request->string('asset_code')->toString());
         $status = trim($request->string('status')->toString());
         $from = $request->date('from'); $to = $request->date('to');
         return match ($report) {
-            'assets' => Asset::with('category', 'status', 'area', 'location')->when(! $user->hasGlobalPermission('assets.view'), fn ($q) => $q->where('area_id', $user->area_id))->when($areaId, fn ($q) => $q->where('area_id', $areaId))->when($locationId, fn ($q) => $q->where('location_id', $locationId))->when($code !== '', fn ($q) => $q->where('asset_code', $code))->when($request->filled('category'), fn ($q) => $q->whereHas('category', fn ($c) => $c->where('code', $request->string('category')->toString())))->when($request->filled('asset_type'), fn ($q) => $q->where('asset_type', $request->string('asset_type')->toString()))->when($status !== '', fn ($q) => $q->where('is_active', $status === 'active'))->when($from, fn ($q) => $q->whereDate('created_at', '>=', $from))->when($to, fn ($q) => $q->whereDate('created_at', '<=', $to))->get()->map(fn (Asset $a) => ['asset_code' => $a->asset_code, 'name' => $a->name, 'category' => $a->category?->name, 'type' => $a->asset_type, 'specifications' => $a->specifications, 'status' => $a->status?->name, 'area' => $a->area?->name, 'location' => $a->location?->name, 'active' => $a->is_active && $a->status?->code !== 'BAJA' ? 'Sí' : 'No']),
+            'assets' => Asset::with('category', 'status', 'area', 'location')->when(! $user->hasGlobalPermission('assets.view'), fn ($q) => $q->where('area_id', $user->area_id))->when($areaId, fn ($q) => $q->whereIn('area_id', $areaIds))->when($locationId, fn ($q) => $q->where('location_id', $locationId))->when($code !== '', fn ($q) => $q->where('asset_code', $code))->when($request->filled('category'), fn ($q) => $q->whereHas('category', fn ($c) => $c->where('code', $request->string('category')->toString())))->when($request->filled('asset_type'), fn ($q) => $q->where('asset_type', $request->string('asset_type')->toString()))->when($status !== '', fn ($q) => $q->where('is_active', $status === 'active'))->when($from, fn ($q) => $q->whereDate('created_at', '>=', $from))->when($to, fn ($q) => $q->whereDate('created_at', '<=', $to))->get()->map(fn (Asset $a) => ['asset_code' => $a->asset_code, 'name' => $a->name, 'category' => $a->category?->name, 'type' => $a->asset_type, 'specifications' => $a->specifications, 'status' => $a->status?->name, 'area' => $a->area?->name, 'location' => $a->location?->name, 'active' => $a->is_active && $a->status?->code !== 'BAJA' ? 'Sí' : 'No']),
             'custodians' => Custodianship::with('asset', 'user', 'assigner')->when(! $user->hasGlobalPermission('custody.view'), fn ($q) => $q->whereHas('asset', fn ($a) => $a->where('area_id', $user->area_id)))->get()->map(fn ($c) => ['asset_code' => $c->asset?->asset_code, 'asset' => $c->asset?->name, 'custodian' => $c->user?->name, 'status' => $c->status, 'started_at' => $c->started_at, 'ended_at' => $c->ended_at]),
             'movements' => MovementRequest::with('asset', 'fromArea', 'toArea')->when(! $user->hasGlobalPermission('movements.view'), fn ($q) => $q->whereHas('asset', fn ($a) => $a->where('area_id', $user->area_id)))->get()->map(fn ($m) => ['asset_code' => $m->asset?->asset_code, 'from' => $m->fromArea?->name, 'to' => $m->toArea?->name, 'status' => $m->status, 'reason' => $m->reason, 'requested_at' => $m->requested_at]),
             'inventory' => InventoryCampaign::with('area')->withCount('checks')->when(! $user->hasGlobalPermission('inventory.view'), fn ($q) => $q->where('area_id', $user->area_id))->get()->map(fn ($c) => ['code' => $c->code, 'name' => $c->name, 'area' => $c->area?->name, 'status' => $c->status, 'checks' => $c->checks_count]),
@@ -82,5 +84,18 @@ return response()->streamDownload(function () use ($query): void {
             'audit' => AuditEvent::with('actor', 'area')->when(! $user->hasGlobalPermission('audit.view'), fn ($q) => $q->where('area_id', $user->area_id))->latest('occurred_at')->get()->map(fn ($e) => ['event' => $e->event, 'actor' => $e->actor?->name, 'area' => $e->area?->name, 'subject_type' => $e->subject_type, 'subject_id' => $e->subject_id, 'occurred_at' => $e->occurred_at]),
             default => collect(),
         };
+    }
+
+    private function areaTreeIds(int $rootId): array
+    {
+        $ids = [$rootId];
+        $pending = [$rootId];
+        while ($pending !== []) {
+            $children = Area::query()->whereIn('parent_id', $pending)->pluck('id')->all();
+            $children = array_values(array_diff($children, $ids));
+            $ids = [...$ids, ...$children];
+            $pending = $children;
+        }
+        return $ids;
     }
 }
