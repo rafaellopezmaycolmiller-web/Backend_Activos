@@ -12,6 +12,7 @@ use App\Models\Custodianship;
 use App\Models\User;
 use App\Services\AuditLogger;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 
@@ -24,15 +25,17 @@ class CustodianshipController extends Controller
         return CustodianshipResource::collection($asset->custodianships()->with('user', 'assigner')->latest('started_at')->paginate(25));
     }
 
-    public function candidates(Asset $asset): AnonymousResourceCollection
+    public function candidates(Request $request, Asset $asset): AnonymousResourceCollection
     {
         Gate::authorize('update', $asset);
+
+        $areaId = $request->integer('area_id') ?: $asset->area_id;
 
         return UserResource::collection(
             User::query()
                 ->with('area', 'roles.permissions')
                 ->where('is_active', true)
-                ->where('area_id', $asset->area_id)
+                ->where('area_id', $areaId)
                 ->orderBy('name')
                 ->get(),
         );
